@@ -30,6 +30,9 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
 
+  reactStrictMode: false,
+  poweredByHeader: false,
+
   webpack: (config) => {
     config.externals = [...(config.externals || []), "canvas", "jsdom"];
     return config;
