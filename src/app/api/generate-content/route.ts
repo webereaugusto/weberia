@@ -17,12 +17,15 @@ type APIResponse = {
 
 // Inicializa o cliente OpenAI com a chave da API
 const getOpenAIClient = () => {
-  const apiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+  // No lado do servidor, usamos OPENAI_API_KEY em vez de NEXT_PUBLIC_OPENAI_API_KEY
+  const apiKey = process.env.OPENAI_API_KEY || process.env.NEXT_PUBLIC_OPENAI_API_KEY;
   
   if (!apiKey) {
     console.error("Erro: Chave da API OpenAI não definida");
-    throw new Error("A variável de ambiente NEXT_PUBLIC_OPENAI_API_KEY não está definida");
+    throw new Error("A variável de ambiente OPENAI_API_KEY não está definida");
   }
+  
+  console.log("Chave da API OpenAI encontrada, primeiros caracteres:", apiKey.substring(0, 10) + "...");
   
   return new OpenAI({
     apiKey
@@ -53,7 +56,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<APIRespon
     console.log("Gerando conteúdo para o tema:", theme);
     
     // Verifica se a chave da API está disponível
-    if (!process.env.NEXT_PUBLIC_OPENAI_API_KEY) {
+    if (!process.env.OPENAI_API_KEY && !process.env.NEXT_PUBLIC_OPENAI_API_KEY) {
       console.warn("Chave da API OpenAI não configurada, retornando conteúdo de exemplo");
       
       return NextResponse.json({
