@@ -1,74 +1,76 @@
 import { NextResponse } from 'next/server';
 import axios from 'axios';
 
-// Configuração para permitir requisições mais longas
-export const maxDuration = 60; // 60 segundos
-
+// Tipos para a resposta da API
 type Category = {
   id: number;
   name: string;
   slug: string;
 };
 
-type WordPressAPIResponse = {
+type CategoriesResponse = {
   success: boolean;
-  categories: Category[];
+  categories?: Category[];
   error?: string;
 };
 
-export async function GET(): Promise<NextResponse<WordPressAPIResponse>> {
+// Função para buscar categorias do WordPress
+export async function GET(): Promise<NextResponse<CategoriesResponse>> {
   try {
-    console.log('Buscando categorias do WordPress...');
-    
-    // Endpoint da API REST do WordPress para categorias
-    const apiUrl = "https://megacubbo.com.br/wp-json/wp/v2/categories";
-    
-    // Configuração do Axios
-    const response = await axios.get(apiUrl, {
-      timeout: 10000
-    });
-    
-    console.log('Resposta recebida:', response.status);
-    
-    if (response.data && Array.isArray(response.data)) {
-      // Mapeando os dados para o formato que precisamos
-      const categories: Category[] = response.data.map((cat: any) => ({
-        id: cat.id,
-        name: cat.name,
-        slug: cat.slug
-      }));
-      
-      console.log(`${categories.length} categorias encontradas`);
-      
-      return NextResponse.json({
-        success: true,
-        categories
-      });
-    } else {
-      console.error('Formato de resposta inesperado:', response.data);
+    // Obter credenciais do ambiente
+    const wpUrl = process.env.WORDPRESS_URL;
+    const wpUsername = process.env.WORDPRESS_USERNAME;
+    const wpPassword = process.env.WORDPRESS_PASSWORD;
+
+    if (!wpUrl || !wpUsername || !wpPassword) {
+      console.error('Credenciais do WordPress não configuradas');
       return NextResponse.json({
         success: false,
-        categories: [],
-        error: 'Formato de resposta inesperado'
+        error: 'Credenciais do WordPress não configuradas'
       }, { status: 500 });
     }
+
+    // Configurar autenticação básica
+    const auth = Buffer.from(`${wpUsername}:${wpPassword}`).toString('base64');
+
+    // Fazer requisição para a API REST do WordPress
+    const response = await axios.get(`${wpUrl}/wp-json/wp/v2/categories`, {
+      headers: {
+        Authorization: `Basic ${auth}`,
+        'Content-Type': 'application/json'
+      },
+      params: {
+        per_page: 100 // Limite de categorias a serem retornadas
+      }
+    });
+
+    // Processar e formatar as categorias
+    const categories = response.data.map((category: any) => ({
+      id: category.id,
+      name: category.name,
+      slug: category.slug
+    }));
+
+    // Retornar resposta de sucesso
+    return NextResponse.json({
+      success: true,
+      categories
+    });
   } catch (error) {
-    console.error('Erro ao buscar categorias:', error);
+    console.error('Erro ao buscar categorias do WordPress:', error);
     
-    let errorMessage = 'Erro ao buscar categorias';
-    let statusCode = 500;
-    
+    // Formatar mensagem de erro
+    let errorMessage = 'Erro ao buscar categorias do WordPress';
     if (axios.isAxiosError(error)) {
-      errorMessage = `Erro ${error.response?.status || 'desconhecido'}: ${error.message}`;
-      statusCode = error.response?.status || 500;
+      errorMessage += `: ${error.response?.data?.message || error.message}`;
     } else if (error instanceof Error) {
-      errorMessage = error.message;
+      errorMessage += `: ${error.message}`;
     }
-    
+
+    // Retornar resposta de erro
     return NextResponse.json({
       success: false,
-      categories: [],
       error: errorMessage
-    }, { status: statusCode });
+    }, { status: 500 });
   }
 } 
