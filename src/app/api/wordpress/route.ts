@@ -25,6 +25,14 @@ type WordPressRESTResponse = {
   [key: string]: unknown;
 };
 
+type WordPressErrorResponse = {
+  message?: string;
+  code?: string;
+  data?: {
+    status: number;
+  };
+};
+
 export async function POST(request: Request): Promise<NextResponse<WordPressAPIResponse>> {
   try {
     const data = await request.json() as WordPressPostData;
@@ -165,7 +173,8 @@ export async function POST(request: Request): Promise<NextResponse<WordPressAPIR
       }
     } catch (error) {
       console.error('Erro ao usar wp-admin:', error instanceof Error ? error.message : 'Erro desconhecido');
-      console.log('Detalhes do erro wp-admin:', error instanceof AxiosError ? error.response?.data : 'Sem detalhes');
+      const errorDetails = error instanceof AxiosError ? error.response?.data as WordPressErrorResponse : null;
+      console.log('Detalhes do erro wp-admin:', errorDetails || 'Sem detalhes');
     }
     
     // Abordagem 2: Tentando usar a API REST do WordPress com Application Password
@@ -217,7 +226,8 @@ export async function POST(request: Request): Promise<NextResponse<WordPressAPIR
       }
     } catch (error) {
       console.error('Erro ao usar API REST:', error instanceof Error ? error.message : 'Erro desconhecido');
-      console.log('Detalhes do erro REST:', error instanceof AxiosError ? error.response?.data : 'Sem detalhes');
+      const errorDetails = error instanceof AxiosError ? error.response?.data as WordPressErrorResponse : null;
+      console.log('Detalhes do erro REST:', errorDetails || 'Sem detalhes');
     }
     
     // Se todas as abordagens falharem, retornamos um erro
@@ -232,8 +242,9 @@ export async function POST(request: Request): Promise<NextResponse<WordPressAPIR
     let statusCode = 500;
     
     if (error instanceof AxiosError) {
-      console.log('Resposta de erro:', JSON.stringify(error.response?.data));
-      errorMessage = `Erro ${error.response?.status}: ${error.response?.data?.message || 'Erro desconhecido'}`;
+      const errorResponse = error.response?.data as WordPressErrorResponse;
+      console.log('Resposta de erro:', JSON.stringify(errorResponse));
+      errorMessage = `Erro ${error.response?.status}: ${errorResponse?.message || 'Erro desconhecido'}`;
       statusCode = error.response?.status || 500;
       
       // Verificando se é um erro de permissão

@@ -105,7 +105,7 @@ export async function GET(): Promise<NextResponse<WordPressAPIResponse>> {
       const categories: Category[] = [];
       
       // Encontrando a tabela de categorias
-      $('#the-list tr').each((i, element) => {
+      $('#the-list tr').each((_index, element) => {
         const id = $(element).attr('id')?.replace('tag-', '');
         if (id) {
           const name = $(element).find('.row-title').text().trim();

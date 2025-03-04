@@ -35,6 +35,14 @@ type CategoriesResponse = {
   error?: string;
 };
 
+type WordPressErrorResponse = {
+  message?: string;
+  code?: string;
+  data?: {
+    status: number;
+  };
+};
+
 export default function Home() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -136,10 +144,10 @@ export default function Home() {
       let errorMsg = "Erro ao publicar o post.";
       if (error instanceof AxiosError) {
         // O servidor respondeu com um status de erro
-        const apiError = error.response?.data as APIError;
-        errorMsg += ` ${apiError?.error || ''}`;
-        console.log('Detalhes do erro:', apiError);
-        setErrorDetails(JSON.stringify(apiError, null, 2));
+        const errorResponse = error.response?.data as WordPressErrorResponse;
+        errorMsg += ` ${errorResponse?.message || ''}`;
+        console.log('Detalhes do erro:', errorResponse);
+        setErrorDetails(JSON.stringify(errorResponse, null, 2));
       } else if (error instanceof Error) {
         // Algo aconteceu na configuração da requisição
         errorMsg += ` ${error.message}`;
