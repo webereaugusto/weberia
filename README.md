@@ -1,80 +1,77 @@
-# WordPress Post Creator com IA
+# Weberia - Publicador WordPress com IA
 
-Aplicação Next.js para criar posts no WordPress com ajuda de IA.
+Este projeto é uma aplicação Next.js que permite criar e publicar posts no WordPress, com a opção de gerar conteúdo automaticamente usando a API da OpenAI.
 
 ## Funcionalidades
 
-- Criação manual de posts
-- Geração de conteúdo com IA (OpenAI)
-- Seleção de categorias
-- Interface moderna e responsiva
-- Feedback em tempo real
-- Tratamento de erros
-
-## Requisitos
-
-- Node.js 18.0 ou superior
-- Conta no WordPress com permissões de administrador
-- Chave de API da OpenAI
+- Criação manual de posts para WordPress
+- Geração automática de conteúdo usando IA (OpenAI)
+- Seleção de categorias do WordPress
+- Interface amigável e responsiva
 
 ## Configuração
 
-1. Clone o repositório
-2. Instale as dependências:
-   ```bash
-   npm install
-   ```
-3. Configure as variáveis de ambiente no arquivo `.env.local`:
-   ```env
-   WORDPRESS_USERNAME=seu_usuario
-   WORDPRESS_PASSWORD=sua_senha
-   WORDPRESS_URL=https://seu-site.com
-   OPENAI_API_KEY=sua_chave_da_openai
-   ```
-4. Inicie o servidor de desenvolvimento:
-   ```bash
-   npm run dev
-   ```
+Para configurar o projeto, você precisa definir as seguintes variáveis de ambiente no arquivo `.env.local`:
 
-## Deploy
+```
+# Variáveis de ambiente para o WordPress
+WORDPRESS_URL=https://seu-site-wordpress.com
+WORDPRESS_USERNAME=seu-usuario
+WORDPRESS_PASSWORD=sua-senha
 
-Esta aplicação está otimizada para deploy na Vercel. Para fazer o deploy:
+# Chave da API OpenAI
+OPENAI_API_KEY=sua-chave-da-api-openai
+```
 
-1. Crie uma conta na [Vercel](https://vercel.com)
-2. Conecte seu repositório GitHub
-3. Configure as variáveis de ambiente no painel da Vercel
-4. Faça o deploy
+## Etapas para fazer o projeto funcionar
 
-## Tecnologias Utilizadas
+Aqui estão as etapas que foram necessárias para fazer o projeto funcionar corretamente:
+
+1. **Configuração do Next.js**
+   - Ajuste do `next.config.js` para lidar com a API do WordPress
+   - Configuração do ESLint para evitar erros de compilação
+
+2. **Correção de tipos TypeScript**
+   - Definição de tipos adequados para as respostas da API
+   - Correção de erros de tipagem em arquivos de rota
+
+3. **Implementação da geração de conteúdo com IA**
+   - Criação de uma API dedicada para comunicação com a OpenAI
+   - Configuração do modelo `gpt-4o-mini` para reduzir custos
+   - Processamento adequado das respostas da API
+
+4. **Correção de problemas com variáveis de ambiente**
+   - Uso de `OPENAI_API_KEY` para o lado do servidor
+   - Fallback para `NEXT_PUBLIC_OPENAI_API_KEY` quando necessário
+
+5. **Melhorias na interface do usuário**
+   - Adição de feedback visual durante a geração de conteúdo
+   - Melhor tratamento de erros e exibição de mensagens informativas
+
+## Tecnologias utilizadas
 
 - Next.js 14
-- React
 - TypeScript
 - Tailwind CSS
 - OpenAI API
 - WordPress REST API
 
-## Uso
+## Como executar
 
-1. Escolha entre criar um post manualmente ou com ajuda de IA
-2. Se escolher IA:
-   - Digite um tema para o post
-   - Aguarde a geração do conteúdo
-   - Revise e aprove ou rejeite o conteúdo gerado
-3. Se escolher manual:
-   - Preencha o título do post
-   - Adicione o conteúdo do post
-4. Selecione uma categoria
-5. Clique em "Publicar Post"
-6. Aguarde a confirmação e acesse o link do post publicado
+```bash
+# Instalar dependências
+npm install
 
-## Segurança
+# Executar em modo de desenvolvimento
+npm run dev
 
-- Nunca compartilhe suas credenciais ou chaves de API
-- Em produção, todas as credenciais devem ser armazenadas como variáveis de ambiente
-- A geração de conteúdo com IA deve ser feita no servidor em ambiente de produção
-- Mantenha o WordPress e seus plugins atualizados
+# Construir para produção
+npm run build
 
-## Suporte
+# Iniciar em modo de produção
+npm start
+```
 
-Para relatar problemas ou sugerir melhorias, abra uma issue no repositório.
+## Implantação
+
+O projeto está configurado para implantação na Vercel. Ao fazer push para o repositório, a Vercel automaticamente inicia uma nova implantação.
