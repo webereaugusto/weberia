@@ -245,6 +245,24 @@ export default function Home() {
                 )}
               </div>
             )}
+            <button
+              onClick={handleTryAgain}
+              className="mt-4 w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition-colors"
+            >
+              Criar Outro Post
+            </button>
+          </div>
+        )}
+        
+        {(status === "loading" || status === "generating" || status === "loadingCategories") && (
+          <div className="mb-4">
+            <div className="p-3 bg-blue-100 text-blue-700 rounded flex items-center">
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              {message}
+            </div>
           </div>
         )}
         
@@ -254,83 +272,43 @@ export default function Home() {
               {message}
             </div>
             {errorDetails && (
-              <details className="mt-2 p-2 border border-red-200 rounded text-sm">
-                <summary className="cursor-pointer font-medium">Ver detalhes do erro</summary>
-                <pre className="mt-2 p-2 bg-gray-100 overflow-auto text-xs">{errorDetails}</pre>
-              </details>
+              <div className="mt-2 p-3 border border-red-200 rounded bg-gray-50">
+                <p className="font-medium mb-1">Detalhes do erro:</p>
+                <pre className="text-xs overflow-auto max-h-40">{errorDetails}</pre>
+              </div>
             )}
-            <button
-              onClick={handleTryAgain}
-              className="mt-2 w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-            >
-              Tentar Novamente
-            </button>
-          </div>
-        )}
-        
-        {(status === "loading" || status === "loadingCategories") && (
-          <div className="mb-4 p-3 bg-blue-100 text-blue-700 rounded flex items-center justify-center">
-            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            {message || "Carregando..."}
-          </div>
-        )}
-        
-        {status === "generating" && (
-          <div className="mb-4 p-3 bg-purple-100 text-purple-700 rounded flex items-center justify-center">
-            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-purple-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            {message}
           </div>
         )}
         
         {showModeSelection && (
-          <div className="space-y-4">
-            <p className="text-center text-gray-700 mb-4">Como você deseja criar seu post?</p>
-            <button
-              onClick={() => setCreationMode("manual")}
-              className="w-full py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Criar Manualmente
-            </button>
-            <button
-              onClick={() => setCreationMode("ai")}
-              className="w-full py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-            >
-              Criar com Ajuda de IA
-            </button>
-          </div>
-        )}
-        
-        {(showManualForm || showAIForm || showAIPreview) && (
-          <div className="mb-4">
-            <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-              Categoria
-            </label>
-            <select
-              id="category"
-              value={selectedCategory || ""}
-              onChange={(e) => setSelectedCategory(e.target.value ? parseInt(e.target.value) : null)}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            >
-              <option value="">Selecione uma categoria</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
+          <div className="mb-6">
+            <p className="text-center text-gray-700 mb-4">Como você deseja criar o post?</p>
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                onClick={() => setCreationMode("manual")}
+                className="bg-white border border-gray-300 rounded-lg p-4 text-center hover:bg-gray-50 transition-colors"
+              >
+                <div className="text-xl mb-2">✍️</div>
+                <div className="font-medium">Manualmente</div>
+                <div className="text-sm text-gray-500">Escrever o conteúdo</div>
+              </button>
+              
+              <button
+                onClick={() => setCreationMode("ai")}
+                className="bg-white border border-gray-300 rounded-lg p-4 text-center hover:bg-gray-50 transition-colors"
+              >
+                <div className="text-xl mb-2">🤖</div>
+                <div className="font-medium">Com IA</div>
+                <div className="text-sm text-gray-500">Gerar com inteligência artificial</div>
+              </button>
+            </div>
           </div>
         )}
         
         {showManualForm && (
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
                 Título
               </label>
               <input
@@ -338,13 +316,14 @@ export default function Home() {
                 id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Digite o título do post"
+                required
               />
             </div>
             
             <div>
-              <label htmlFor="content" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
                 Conteúdo
               </label>
               <textarea
@@ -352,33 +331,53 @@ export default function Home() {
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 rows={6}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Digite o conteúdo do post"
-              />
+                required
+              ></textarea>
             </div>
             
-            <div className="flex space-x-2">
+            <div>
+              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+                Categoria
+              </label>
+              <select
+                id="category"
+                value={selectedCategory || ""}
+                onChange={(e) => setSelectedCategory(e.target.value ? parseInt(e.target.value) : null)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="">Selecione uma categoria (opcional)</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="flex space-x-3">
               <button
                 type="button"
                 onClick={() => setCreationMode(null)}
-                className="flex-1 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="flex-1 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 Voltar
               </button>
               <button
                 type="submit"
-                className="flex-1 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="flex-1 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
-                Publicar Post
+                Publicar
               </button>
             </div>
           </form>
         )}
         
         {showAIForm && (
-          <form onSubmit={handleGenerateWithAI} className="space-y-6">
+          <form onSubmit={handleGenerateWithAI} className="space-y-4">
             <div>
-              <label htmlFor="theme" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="theme" className="block text-sm font-medium text-gray-700 mb-1">
                 Tema para o Post
               </label>
               <input
@@ -386,98 +385,77 @@ export default function Home() {
                 id="theme"
                 value={theme}
                 onChange={(e) => setTheme(e.target.value)}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Ex: Inteligência Artificial, Receitas Veganas, Dicas de Viagem..."
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Ex: Benefícios da meditação, Receitas veganas, etc."
+                required
               />
-              <p className="mt-1 text-xs text-gray-500">
-                Informe um tema e a IA irá gerar um título e conteúdo para seu post.
-              </p>
             </div>
             
-            <div className="flex space-x-2">
+            <div>
+              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+                Categoria
+              </label>
+              <select
+                id="category"
+                value={selectedCategory || ""}
+                onChange={(e) => setSelectedCategory(e.target.value ? parseInt(e.target.value) : null)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="">Selecione uma categoria (opcional)</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="flex space-x-3">
               <button
                 type="button"
                 onClick={() => setCreationMode(null)}
-                className="flex-1 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="flex-1 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 Voltar
               </button>
               <button
                 type="submit"
-                className="flex-1 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                className="flex-1 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
-                Gerar com IA
+                Gerar Conteúdo
               </button>
             </div>
           </form>
         )}
         
-        {showAIPreview && (
-          <div className="space-y-6">
+        {showAIPreview && aiGeneratedContent && (
+          <div className="space-y-4">
             <div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">Conteúdo Gerado pela IA</h3>
               <div className="border border-gray-200 rounded-md p-4 bg-gray-50">
-                <h4 className="font-bold text-lg mb-2">{title}</h4>
+                <h4 className="font-bold text-lg mb-2">{aiGeneratedContent.title}</h4>
                 <div className="prose prose-sm max-w-none">
-                  {content.split('\n\n').map((paragraph, index) => (
+                  {aiGeneratedContent.content.split('\n\n').map((paragraph, index) => (
                     <p key={index} className="mb-2">{paragraph}</p>
                   ))}
                 </div>
               </div>
             </div>
             
-            <div className="flex space-x-2">
+            <div className="flex space-x-3">
               <button
-                type="button"
                 onClick={handleRejectAIContent}
-                className="flex-1 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                className="flex-1 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 Rejeitar
               </button>
               <button
-                type="button"
                 onClick={handleApproveAIContent}
-                className="flex-1 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                className="flex-1 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
-                Aprovar e Publicar
+                Publicar
               </button>
             </div>
-            
-            <div>
-              <button
-                type="button"
-                onClick={() => {
-                  setTheme("");
-                  setAiGeneratedContent(null);
-                }}
-                className="w-full py-2 px-4 border border-purple-300 rounded-md shadow-sm text-sm font-medium text-purple-700 bg-white hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-              >
-                Tentar com Outro Tema
-              </button>
-            </div>
-            
-            <div>
-              <button
-                type="button"
-                onClick={() => {
-                  setCreationMode("manual");
-                }}
-                className="w-full py-2 px-4 border border-indigo-300 rounded-md shadow-sm text-sm font-medium text-indigo-700 bg-white hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                Editar Manualmente
-              </button>
-            </div>
-          </div>
-        )}
-        
-        {status === "success" && (
-          <div className="mt-4">
-            <button
-              onClick={handleTryAgain}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-            >
-              Criar Novo Post
-            </button>
           </div>
         )}
       </div>
