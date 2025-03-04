@@ -8,6 +8,13 @@ export type AIGeneratedContent = {
   content: string;
 };
 
+// Tipo para a resposta da API
+type APIResponse = {
+  success: boolean;
+  data?: AIGeneratedContent;
+  error?: string;
+};
+
 // Inicializa o cliente OpenAI com a chave da API
 const getOpenAIClient = () => {
   const apiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
@@ -48,10 +55,20 @@ export async function generatePostContent(theme: string): Promise<AIGeneratedCon
         throw new Error(`Erro na API: ${response.status} ${response.statusText}`);
       }
       
-      const data = await response.json();
-      console.log("Conteúdo gerado com sucesso:", data);
+      const responseData = await response.json() as APIResponse;
+      console.log("Resposta da API:", responseData);
       
-      return data;
+      if (!responseData.success) {
+        throw new Error(responseData.error || "Erro desconhecido ao gerar conteúdo");
+      }
+      
+      if (!responseData.data) {
+        throw new Error("A API retornou uma resposta sem dados");
+      }
+      
+      console.log("Conteúdo gerado com sucesso:", responseData.data);
+      
+      return responseData.data;
     } else {
       // Fallback para quando não estamos no navegador (isso não deve acontecer com "use client")
       console.log("Não estamos no navegador, retornando conteúdo de fallback");
@@ -64,9 +81,6 @@ export async function generatePostContent(theme: string): Promise<AIGeneratedCon
     console.error("Erro ao gerar conteúdo com OpenAI:", error);
     
     // Retorna conteúdo de fallback em caso de erro
-    return {
-      title: `Post sobre ${theme}`,
-      content: `Este é um conteúdo de exemplo sobre ${theme}. Não foi possível gerar conteúdo com a OpenAI devido a um erro: ${error instanceof Error ? error.message : 'Erro desconhecido'}`
-    };
+    throw error;
   }
 } 
