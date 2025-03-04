@@ -1,15 +1,21 @@
 import { NextResponse } from 'next/server';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { load } from 'cheerio';
 
 // Configuração para permitir requisições mais longas
 export const maxDuration = 60; // 60 segundos
 
+type WordPressPostData = {
+  title: string;
+  content: string;
+  categoryId?: number;
+};
+
 export async function POST(request: Request) {
   try {
-    const { title, content, categoryId } = await request.json();
+    const data = await request.json() as WordPressPostData;
 
-    if (!title || !content) {
+    if (!data.title || !data.content) {
       return NextResponse.json(
         { error: 'Título e conteúdo são obrigatórios' },
         { status: 400 }
@@ -17,21 +23,13 @@ export async function POST(request: Request) {
     }
 
     // Credenciais para autenticação
-    const username = process.env.WORDPRESS_USERNAME;
-    const password = process.env.WORDPRESS_PASSWORD;
-    const wordpressUrl = process.env.WORDPRESS_URL;
-    
-    if (!username || !password || !wordpressUrl) {
-      throw new Error('Credenciais do WordPress não configuradas');
-    }
+    const username = "chat";
+    const password = "dGkO4*!ZsEVZ60z4skZiIJdv";
     
     // Formatando o conteúdo para HTML
-    const formattedContent = content.replace(/\n/g, '<br />');
+    const formattedContent = data.content.replace(/\n/g, '<br />');
     
-    console.log('Tentando publicar post com título:', title);
-    if (categoryId) {
-      console.log('Categoria selecionada:', categoryId);
-    }
+    console.log('Tentando publicar post com título:', data.title);
     
     // Abordagem 1: Tentando usar a API de aplicação do WordPress (wp-admin)
     try {
@@ -42,7 +40,7 @@ export async function POST(request: Request) {
       loginFormData.append('log', username);
       loginFormData.append('pwd', password);
       loginFormData.append('wp-submit', 'Log In');
-      loginFormData.append('redirect_to', `${wordpressUrl}/wp-admin/`);
+      loginFormData.append('redirect_to', 'https://megacubbo.com.br/wp-admin/');
       loginFormData.append('testcookie', '1');
       
       // Criando uma instância do axios com suporte a cookies
@@ -56,7 +54,7 @@ export async function POST(request: Request) {
       
       // Fazendo login
       const loginResponse = await axiosInstance.post(
-        `${wordpressUrl}/wp-login.php`,
+        'https://megacubbo.com.br/wp-login.php',
         loginFormData,
         {
           headers: {
@@ -77,7 +75,7 @@ export async function POST(request: Request) {
       
       // Obtendo o formulário de criação de post para extrair campos necessários
       const getPostFormResponse = await axiosInstance.get(
-        `${wordpressUrl}/wp-admin/post-new.php`,
+        'https://megacubbo.com.br/wp-admin/post-new.php',
         {
           headers: {
             'Cookie': cookies.join('; ')
@@ -101,7 +99,7 @@ export async function POST(request: Request) {
       
       // Criando o post
       const postFormData = new URLSearchParams();
-      postFormData.append('post_title', title);
+      postFormData.append('post_title', data.title);
       postFormData.append('content', formattedContent);
       postFormData.append('post_status', 'publish');
       postFormData.append('_wpnonce', nonce.toString());
@@ -111,8 +109,8 @@ export async function POST(request: Request) {
       postFormData.append('publish', 'Publicar');
       
       // Adicionando a categoria, se fornecida
-      if (categoryId) {
-        postFormData.append('post_category[]', categoryId.toString());
+      if (data.categoryId) {
+        postFormData.append('post_category[]', data.categoryId.toString());
       }
       
       if (postId) postFormData.append('post_ID', postId.toString());
@@ -120,7 +118,7 @@ export async function POST(request: Request) {
       
       // Enviando o formulário para criar o post
       const postResponse = await axiosInstance.post(
-        `${wordpressUrl}/wp-admin/post.php`,
+        'https://megacubbo.com.br/wp-admin/post.php',
         postFormData,
         {
           headers: {
@@ -144,16 +142,16 @@ export async function POST(request: Request) {
           success: true,
           message: 'Post publicado com sucesso via wp-admin',
           postId: createdPostId,
-          postUrl: `${wordpressUrl}/?p=${createdPostId}`
+          postUrl: `https://megacubbo.com.br/?p=${createdPostId}`
         });
       } else {
         // Se não encontrou a mensagem de sucesso, pode ter ocorrido um erro
         console.log('Resposta não contém confirmação de publicação');
         throw new Error('Não foi possível confirmar a publicação do post');
       }
-    } catch (adminError: any) {
-      console.error('Erro ao usar wp-admin:', adminError.message);
-      console.log('Detalhes do erro wp-admin:', adminError.response?.data || 'Sem detalhes');
+    } catch (error) {
+      console.error('Erro ao usar wp-admin:', error instanceof Error ? error.message : 'Erro desconhecido');
+      console.log('Detalhes do erro wp-admin:', error instanceof AxiosError ? error.response?.data : 'Sem detalhes');
     }
     
     // Abordagem 2: Tentando usar a API REST do WordPress com Application Password
@@ -161,18 +159,18 @@ export async function POST(request: Request) {
       console.log('Tentando abordagem com API REST...');
       
       // Endpoint da API REST do WordPress
-      const apiUrl = `${wordpressUrl}/wp-json/wp/v2/posts`;
+      const apiUrl = "https://megacubbo.com.br/wp-json/wp/v2/posts";
       
       // Formatando os dados do post para o formato esperado pelo WordPress
-      const postData: any = {
-        title: title,
+      const postData: Record<string, unknown> = {
+        title: data.title,
         content: formattedContent,
         status: "publish"
       };
       
       // Adicionando a categoria, se fornecida
-      if (categoryId) {
-        postData.categories = [parseInt(categoryId.toString())];
+      if (data.categoryId) {
+        postData.categories = [data.categoryId];
       }
       
       // Criando o token de autenticação básica
@@ -202,9 +200,9 @@ export async function POST(request: Request) {
           postUrl: response.data.link
         });
       }
-    } catch (restError: any) {
-      console.error('Erro ao usar API REST:', restError.message);
-      console.log('Detalhes do erro REST:', restError.response?.data || 'Sem detalhes');
+    } catch (error) {
+      console.error('Erro ao usar API REST:', error instanceof Error ? error.message : 'Erro desconhecido');
+      console.log('Detalhes do erro REST:', error instanceof AxiosError ? error.response?.data : 'Sem detalhes');
     }
     
     // Se todas as abordagens falharem, retornamos um erro
@@ -212,27 +210,24 @@ export async function POST(request: Request) {
       { error: 'Todas as tentativas de publicação falharam. Verifique os logs para mais detalhes.' },
       { status: 500 }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error('Erro geral ao publicar no WordPress:', error);
     
     let errorMessage = 'Erro ao publicar no WordPress';
     let statusCode = 500;
     
-    if (error.response) {
-      console.log('Resposta de erro:', JSON.stringify(error.response.data));
-      errorMessage = `Erro ${error.response.status}: ${error.response.data?.message || 'Erro desconhecido'}`;
-      statusCode = error.response.status;
+    if (error instanceof AxiosError) {
+      console.log('Resposta de erro:', JSON.stringify(error.response?.data));
+      errorMessage = `Erro ${error.response?.status}: ${error.response?.data?.message || 'Erro desconhecido'}`;
+      statusCode = error.response?.status || 500;
       
       // Verificando se é um erro de permissão
-      if (error.response.status === 401) {
+      if (error.response?.status === 401) {
         errorMessage = 'Erro de autenticação: Verifique se o usuário tem permissão para criar posts.';
-      } else if (error.response.status === 403) {
+      } else if (error.response?.status === 403) {
         errorMessage = 'Erro de permissão: O usuário não tem permissão para criar posts.';
       }
-    } else if (error.request) {
-      console.log('Sem resposta do servidor');
-      errorMessage = 'Sem resposta do servidor WordPress. Verifique a conexão.';
-    } else {
+    } else if (error instanceof Error) {
       console.log('Erro na configuração da requisição:', error.message);
       errorMessage = `Erro na requisição: ${error.message}`;
     }

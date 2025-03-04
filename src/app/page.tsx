@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { generatePostContent } from "@/lib/openai";
 
 type CreationMode = "manual" | "ai" | null;
@@ -10,6 +10,16 @@ type Category = {
   id: number;
   name: string;
   slug: string;
+};
+
+type AIGeneratedContent = {
+  title: string;
+  content: string;
+};
+
+type APIError = {
+  error: string;
+  details?: unknown;
 };
 
 export default function Home() {
@@ -22,7 +32,7 @@ export default function Home() {
   const [postId, setPostId] = useState<string | null>(null);
   const [creationMode, setCreationMode] = useState<CreationMode>(null);
   const [theme, setTheme] = useState("");
-  const [aiGeneratedContent, setAiGeneratedContent] = useState<{ title: string; content: string } | null>(null);
+  const [aiGeneratedContent, setAiGeneratedContent] = useState<AIGeneratedContent | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
 
@@ -36,7 +46,7 @@ export default function Home() {
       setStatus("loadingCategories");
       setMessage("Carregando categorias...");
       
-      const response = await axios.get('/api/wordpress/categories');
+      const response = await axios.get<{ success: boolean; categories: Category[]; error?: string }>('/api/wordpress/categories');
       
       if (response.data.success && response.data.categories) {
         setCategories(response.data.categories);
@@ -45,11 +55,11 @@ export default function Home() {
       } else {
         throw new Error(response.data.error || "Erro ao carregar categorias");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Erro ao buscar categorias:", error);
       setStatus("error");
       setMessage("Erro ao carregar categorias. Por favor, recarregue a página.");
-      setErrorDetails(error.message || "Erro desconhecido");
+      setErrorDetails(error instanceof Error ? error.message : "Erro desconhecido");
     }
   };
 
@@ -75,7 +85,7 @@ export default function Home() {
 
     try {
       // Usando nossa própria API como proxy para o WordPress
-      const response = await axios.post('/api/wordpress', {
+      const response = await axios.post<{ success: boolean; postUrl?: string; postId?: string; error?: string }>('/api/wordpress', {
         title: postTitle,
         content: postContent,
         categoryId: categoryId
@@ -106,21 +116,18 @@ export default function Home() {
         setMessage(`Erro ao publicar o post: ${response.data.error || 'Erro desconhecido'}`);
         setErrorDetails(JSON.stringify(response.data, null, 2));
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Erro ao publicar post:", error);
       
       // Mensagem de erro mais detalhada
       let errorMsg = "Erro ao publicar o post.";
-      if (error.response) {
+      if (error instanceof AxiosError) {
         // O servidor respondeu com um status de erro
-        errorMsg += ` ${error.response.data?.error || ''}`;
-        console.log('Detalhes do erro:', error.response.data);
-        setErrorDetails(JSON.stringify(error.response.data, null, 2));
-      } else if (error.request) {
-        // A requisição foi feita mas não houve resposta
-        errorMsg += " Não foi possível conectar ao servidor.";
-        setErrorDetails("A requisição foi feita, mas não houve resposta do servidor.");
-      } else {
+        const apiError = error.response?.data as APIError;
+        errorMsg += ` ${apiError?.error || ''}`;
+        console.log('Detalhes do erro:', apiError);
+        setErrorDetails(JSON.stringify(apiError, null, 2));
+      } else if (error instanceof Error) {
         // Algo aconteceu na configuração da requisição
         errorMsg += ` ${error.message}`;
         setErrorDetails(error.message);
@@ -162,11 +169,11 @@ export default function Home() {
       setTitle(generatedContent.title);
       setContent(generatedContent.content);
       setStatus("idle");
-    } catch (error: any) {
+    } catch (error) {
       console.error("Erro ao gerar conteúdo com IA:", error);
       setStatus("error");
-      setMessage(`Erro ao gerar conteúdo com IA: ${error.message}`);
-      setErrorDetails(error.toString());
+      setMessage(`Erro ao gerar conteúdo com IA: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+      setErrorDetails(error instanceof Error ? error.toString() : 'Erro desconhecido');
     }
   };
 

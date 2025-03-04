@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { load } from 'cheerio';
 
 type Category = {
@@ -10,25 +10,20 @@ type Category = {
 
 export async function GET() {
   try {
-    // Credenciais para autenticação
-    const username = process.env.WORDPRESS_USERNAME;
-    const password = process.env.WORDPRESS_PASSWORD;
-    const wordpressUrl = process.env.WORDPRESS_URL;
-    
-    if (!username || !password || !wordpressUrl) {
-      throw new Error('Credenciais do WordPress não configuradas');
-    }
-    
     // Primeiro, tentamos usar a API REST
     try {
+      // Credenciais para autenticação
+      const username = "chat";
+      const password = "dGkO4*!ZsEVZ60z4skZiIJdv";
+      
       // Criando o token de autenticação básica
       const token = Buffer.from(`${username}:${password}`).toString('base64');
       
       // URL da API do WordPress para buscar categorias
-      const apiUrl = `${wordpressUrl}/wp-json/wp/v2/categories`;
+      const apiUrl = 'https://megacubbo.com.br/wp-json/wp/v2/categories';
 
       // Fazendo a requisição para buscar as categorias
-      const response = await axios.get(apiUrl, {
+      const response = await axios.get<Category[]>(apiUrl, {
         params: {
           per_page: 100, // Número máximo de categorias a serem retornadas
           _fields: 'id,name,slug', // Campos que queremos retornar
@@ -45,16 +40,20 @@ export async function GET() {
         success: true,
         categories: response.data
       });
-    } catch (restError) {
+    } catch (error) {
       console.log('Erro ao buscar categorias via API REST, tentando abordagem alternativa...');
       
       // Se a API REST falhar, tentamos a abordagem via wp-admin
+      // Credenciais para autenticação
+      const username = "chat";
+      const password = "dGkO4*!ZsEVZ60z4skZiIJdv";
+      
       // Primeiro, vamos fazer login no WordPress
       const loginFormData = new URLSearchParams();
       loginFormData.append('log', username);
       loginFormData.append('pwd', password);
       loginFormData.append('wp-submit', 'Log In');
-      loginFormData.append('redirect_to', `${wordpressUrl}/wp-admin/`);
+      loginFormData.append('redirect_to', 'https://megacubbo.com.br/wp-admin/');
       loginFormData.append('testcookie', '1');
       
       // Criando uma instância do axios com suporte a cookies
@@ -68,7 +67,7 @@ export async function GET() {
       
       // Fazendo login
       const loginResponse = await axiosInstance.post(
-        `${wordpressUrl}/wp-login.php`,
+        'https://megacubbo.com.br/wp-login.php',
         loginFormData,
         {
           headers: {
@@ -87,7 +86,7 @@ export async function GET() {
       
       // Acessando a página de categorias
       const categoriesPageResponse = await axiosInstance.get(
-        `${wordpressUrl}/wp-admin/edit-tags.php?taxonomy=category`,
+        'https://megacubbo.com.br/wp-admin/edit-tags.php?taxonomy=category',
         {
           headers: {
             'Cookie': cookies.join('; ')
@@ -121,18 +120,16 @@ export async function GET() {
         categories
       });
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error('Erro ao buscar categorias do WordPress:', error);
     
     let errorMessage = 'Erro ao buscar categorias';
-    let errorDetails = null;
+    let errorDetails: unknown = null;
     
-    if (error.response) {
-      errorMessage = `Erro ao buscar categorias: ${error.response.status}`;
-      errorDetails = error.response.data;
-    } else if (error.request) {
-      errorMessage = 'Não foi possível conectar ao servidor WordPress';
-    } else {
+    if (error instanceof AxiosError) {
+      errorMessage = `Erro ao buscar categorias: ${error.response?.status}`;
+      errorDetails = error.response?.data;
+    } else if (error instanceof Error) {
       errorMessage = `Erro: ${error.message}`;
     }
     
