@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WordPress Post Creator com IA
 
-## Getting Started
+Aplicação Next.js para criar posts no WordPress com ajuda de IA.
 
-First, run the development server:
+## Funcionalidades
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Criação manual de posts
+- Geração de conteúdo com IA (OpenAI)
+- Seleção de categorias
+- Interface moderna e responsiva
+- Feedback em tempo real
+- Tratamento de erros
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Requisitos
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Node.js 18.0 ou superior
+- Conta no WordPress com permissões de administrador
+- Chave de API da OpenAI
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Configuração
 
-## Learn More
+1. Clone o repositório
+2. Instale as dependências:
+   ```bash
+   npm install
+   ```
+3. Configure as variáveis de ambiente no arquivo `.env.local`:
+   ```env
+   WORDPRESS_USERNAME=seu_usuario
+   WORDPRESS_PASSWORD=sua_senha
+   WORDPRESS_URL=https://seu-site.com
+   OPENAI_API_KEY=sua_chave_da_openai
+   ```
+4. Inicie o servidor de desenvolvimento:
+   ```bash
+   npm run dev
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+## Deploy
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Esta aplicação está otimizada para deploy na Vercel. Para fazer o deploy:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Crie uma conta na [Vercel](https://vercel.com)
+2. Conecte seu repositório GitHub
+3. Configure as variáveis de ambiente no painel da Vercel
+4. Faça o deploy
 
-## Deploy on Vercel
+## Tecnologias Utilizadas
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Next.js 14
+- React
+- TypeScript
+- Tailwind CSS
+- OpenAI API
+- WordPress REST API
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Uso
+
+1. Escolha entre criar um post manualmente ou com ajuda de IA
+2. Se escolher IA:
+   - Digite um tema para o post
+   - Aguarde a geração do conteúdo
+   - Revise e aprove ou rejeite o conteúdo gerado
+3. Se escolher manual:
+   - Preencha o título do post
+   - Adicione o conteúdo do post
+4. Selecione uma categoria
+5. Clique em "Publicar Post"
+6. Aguarde a confirmação e acesse o link do post publicado
+
+## Segurança
+
+- Nunca compartilhe suas credenciais ou chaves de API
+- Em produção, todas as credenciais devem ser armazenadas como variáveis de ambiente
+- A geração de conteúdo com IA deve ser feita no servidor em ambiente de produção
+- Mantenha o WordPress e seus plugins atualizados
+
+## Suporte
+
+Para relatar problemas ou sugerir melhorias, abra uma issue no repositório.
