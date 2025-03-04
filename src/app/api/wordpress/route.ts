@@ -11,13 +11,21 @@ type WordPressPostData = {
   categoryId?: number;
 };
 
-export async function POST(request: Request) {
+type WordPressAPIResponse = {
+  success: boolean;
+  message?: string;
+  postId?: string;
+  postUrl?: string;
+  error?: string;
+};
+
+export async function POST(request: Request): Promise<NextResponse<WordPressAPIResponse>> {
   try {
     const data = await request.json() as WordPressPostData;
 
     if (!data.title || !data.content) {
       return NextResponse.json(
-        { error: 'Título e conteúdo são obrigatórios' },
+        { success: false, error: 'Título e conteúdo são obrigatórios' },
         { status: 400 }
       );
     }
@@ -149,9 +157,9 @@ export async function POST(request: Request) {
         console.log('Resposta não contém confirmação de publicação');
         throw new Error('Não foi possível confirmar a publicação do post');
       }
-    } catch (error) {
-      console.error('Erro ao usar wp-admin:', error instanceof Error ? error.message : 'Erro desconhecido');
-      console.log('Detalhes do erro wp-admin:', error instanceof AxiosError ? error.response?.data : 'Sem detalhes');
+    } catch (_error) {
+      console.error('Erro ao usar wp-admin:', _error instanceof Error ? _error.message : 'Erro desconhecido');
+      console.log('Detalhes do erro wp-admin:', _error instanceof AxiosError ? _error.response?.data : 'Sem detalhes');
     }
     
     // Abordagem 2: Tentando usar a API REST do WordPress com Application Password
@@ -196,18 +204,18 @@ export async function POST(request: Request) {
         return NextResponse.json({
           success: true,
           message: 'Post publicado com sucesso via API REST',
-          postId: response.data.id,
+          postId: response.data.id.toString(),
           postUrl: response.data.link
         });
       }
-    } catch (error) {
-      console.error('Erro ao usar API REST:', error instanceof Error ? error.message : 'Erro desconhecido');
-      console.log('Detalhes do erro REST:', error instanceof AxiosError ? error.response?.data : 'Sem detalhes');
+    } catch (_error) {
+      console.error('Erro ao usar API REST:', _error instanceof Error ? _error.message : 'Erro desconhecido');
+      console.log('Detalhes do erro REST:', _error instanceof AxiosError ? _error.response?.data : 'Sem detalhes');
     }
     
     // Se todas as abordagens falharem, retornamos um erro
     return NextResponse.json(
-      { error: 'Todas as tentativas de publicação falharam. Verifique os logs para mais detalhes.' },
+      { success: false, error: 'Todas as tentativas de publicação falharam. Verifique os logs para mais detalhes.' },
       { status: 500 }
     );
   } catch (error) {
@@ -233,7 +241,7 @@ export async function POST(request: Request) {
     }
     
     return NextResponse.json(
-      { error: errorMessage },
+      { success: false, error: errorMessage },
       { status: statusCode }
     );
   }

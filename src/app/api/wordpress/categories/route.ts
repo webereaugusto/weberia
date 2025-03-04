@@ -8,7 +8,13 @@ type Category = {
   slug: string;
 };
 
-export async function GET() {
+type WordPressAPIResponse = {
+  success: boolean;
+  categories: Category[];
+  error?: string;
+};
+
+export async function GET(): Promise<NextResponse<WordPressAPIResponse>> {
   try {
     // Primeiro, tentamos usar a API REST
     try {
@@ -40,7 +46,7 @@ export async function GET() {
         success: true,
         categories: response.data
       });
-    } catch (error) {
+    } catch (_error) {
       console.log('Erro ao buscar categorias via API REST, tentando abordagem alternativa...');
       
       // Se a API REST falhar, tentamos a abordagem via wp-admin
@@ -135,8 +141,8 @@ export async function GET() {
     
     return NextResponse.json({
       success: false,
-      error: errorMessage,
-      details: errorDetails
+      categories: [],
+      error: errorMessage
     }, { status: 500 });
   }
 } 
