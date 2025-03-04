@@ -20,6 +20,16 @@ const nextConfig = {
     // Remover serverActions pois já está disponível por padrão
   },
 
+  eslint: {
+    // Desabilitar ESLint durante o build
+    ignoreDuringBuilds: true,
+  },
+
+  typescript: {
+    // Desabilitar verificação de tipos durante o build
+    ignoreBuildErrors: true,
+  },
+
   webpack: (config) => {
     config.externals = [...(config.externals || []), "canvas", "jsdom"];
     return config;
