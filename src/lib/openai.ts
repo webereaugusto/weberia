@@ -9,10 +9,18 @@ export type AIGeneratedContent = {
 };
 
 // Inicializa o cliente OpenAI com a chave da API
-const openai = new OpenAI({
-  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true // Permite uso no navegador (cliente)
-});
+const getOpenAIClient = () => {
+  const apiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+  
+  if (!apiKey) {
+    throw new Error("A variável de ambiente NEXT_PUBLIC_OPENAI_API_KEY não está definida");
+  }
+  
+  return new OpenAI({
+    apiKey,
+    dangerouslyAllowBrowser: true // Permite uso no navegador (cliente)
+  });
+};
 
 /**
  * Gera conteúdo para um post do WordPress usando a API da OpenAI
@@ -21,6 +29,16 @@ const openai = new OpenAI({
  */
 export async function generatePostContent(theme: string): Promise<AIGeneratedContent> {
   try {
+    // Verifica se a chave da API está disponível
+    if (!process.env.NEXT_PUBLIC_OPENAI_API_KEY) {
+      return {
+        title: `Post sobre ${theme}`,
+        content: `Este é um conteúdo de exemplo sobre ${theme}. A integração com OpenAI não está disponível no momento porque a chave da API não foi configurada.`
+      };
+    }
+    
+    const openai = getOpenAIClient();
+    
     // Cria o prompt para a API
     const prompt = `
       Crie um post de blog em português do Brasil sobre o tema: "${theme}".
@@ -65,6 +83,11 @@ export async function generatePostContent(theme: string): Promise<AIGeneratedCon
     return { title, content };
   } catch (error) {
     console.error("Erro ao gerar conteúdo com OpenAI:", error);
-    throw new Error(`Falha ao gerar conteúdo: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+    
+    // Retorna conteúdo de fallback em caso de erro
+    return {
+      title: `Post sobre ${theme}`,
+      content: `Este é um conteúdo de exemplo sobre ${theme}. Não foi possível gerar conteúdo com a OpenAI devido a um erro: ${error instanceof Error ? error.message : 'Erro desconhecido'}`
+    };
   }
 } 
