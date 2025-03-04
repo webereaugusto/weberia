@@ -19,7 +19,20 @@ type AIGeneratedContent = {
 
 type APIError = {
   error: string;
-  details?: unknown;
+  details?: string;
+};
+
+type WordPressResponse = {
+  success: boolean;
+  postUrl?: string;
+  postId?: string;
+  error?: string;
+};
+
+type CategoriesResponse = {
+  success: boolean;
+  categories: Category[];
+  error?: string;
 };
 
 export default function Home() {
@@ -46,7 +59,7 @@ export default function Home() {
       setStatus("loadingCategories");
       setMessage("Carregando categorias...");
       
-      const response = await axios.get<{ success: boolean; categories: Category[]; error?: string }>('/api/wordpress/categories');
+      const response = await axios.get<CategoriesResponse>('/api/wordpress/categories');
       
       if (response.data.success && response.data.categories) {
         setCategories(response.data.categories);
@@ -85,7 +98,7 @@ export default function Home() {
 
     try {
       // Usando nossa própria API como proxy para o WordPress
-      const response = await axios.post<{ success: boolean; postUrl?: string; postId?: string; error?: string }>('/api/wordpress', {
+      const response = await axios.post<WordPressResponse>('/api/wordpress', {
         title: postTitle,
         content: postContent,
         categoryId: categoryId

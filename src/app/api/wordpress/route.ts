@@ -19,6 +19,12 @@ type WordPressAPIResponse = {
   error?: string;
 };
 
+type WordPressRESTResponse = {
+  id: number;
+  link: string;
+  [key: string]: unknown;
+};
+
 export async function POST(request: Request): Promise<NextResponse<WordPressAPIResponse>> {
   try {
     const data = await request.json() as WordPressPostData;
@@ -157,9 +163,9 @@ export async function POST(request: Request): Promise<NextResponse<WordPressAPIR
         console.log('Resposta não contém confirmação de publicação');
         throw new Error('Não foi possível confirmar a publicação do post');
       }
-    } catch (_error) {
-      console.error('Erro ao usar wp-admin:', _error instanceof Error ? _error.message : 'Erro desconhecido');
-      console.log('Detalhes do erro wp-admin:', _error instanceof AxiosError ? _error.response?.data : 'Sem detalhes');
+    } catch (error) {
+      console.error('Erro ao usar wp-admin:', error instanceof Error ? error.message : 'Erro desconhecido');
+      console.log('Detalhes do erro wp-admin:', error instanceof AxiosError ? error.response?.data : 'Sem detalhes');
     }
     
     // Abordagem 2: Tentando usar a API REST do WordPress com Application Password
@@ -185,17 +191,18 @@ export async function POST(request: Request): Promise<NextResponse<WordPressAPIR
       const token = Buffer.from(`${username}:${password}`).toString('base64');
       
       // Configuração do Axios com autenticação básica
-      const response = await axios({
-        method: 'post',
-        url: apiUrl,
-        data: postData,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': `Basic ${token}`
-        },
-        timeout: 15000
-      });
+      const response = await axios.post<WordPressRESTResponse>(
+        apiUrl,
+        postData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Basic ${token}`
+          },
+          timeout: 15000
+        }
+      );
       
       console.log('Resposta do WordPress API REST:', response.status);
       console.log('Dados da resposta:', response.data);
@@ -208,9 +215,9 @@ export async function POST(request: Request): Promise<NextResponse<WordPressAPIR
           postUrl: response.data.link
         });
       }
-    } catch (_error) {
-      console.error('Erro ao usar API REST:', _error instanceof Error ? _error.message : 'Erro desconhecido');
-      console.log('Detalhes do erro REST:', _error instanceof AxiosError ? _error.response?.data : 'Sem detalhes');
+    } catch (error) {
+      console.error('Erro ao usar API REST:', error instanceof Error ? error.message : 'Erro desconhecido');
+      console.log('Detalhes do erro REST:', error instanceof AxiosError ? error.response?.data : 'Sem detalhes');
     }
     
     // Se todas as abordagens falharem, retornamos um erro

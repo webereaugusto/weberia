@@ -46,7 +46,7 @@ export async function GET(): Promise<NextResponse<WordPressAPIResponse>> {
         success: true,
         categories: response.data
       });
-    } catch (_error) {
+    } catch (error) {
       console.log('Erro ao buscar categorias via API REST, tentando abordagem alternativa...');
       
       // Se a API REST falhar, tentamos a abordagem via wp-admin
@@ -130,11 +130,9 @@ export async function GET(): Promise<NextResponse<WordPressAPIResponse>> {
     console.error('Erro ao buscar categorias do WordPress:', error);
     
     let errorMessage = 'Erro ao buscar categorias';
-    let errorDetails: unknown = null;
     
     if (error instanceof AxiosError) {
       errorMessage = `Erro ao buscar categorias: ${error.response?.status}`;
-      errorDetails = error.response?.data;
     } else if (error instanceof Error) {
       errorMessage = `Erro: ${error.message}`;
     }
