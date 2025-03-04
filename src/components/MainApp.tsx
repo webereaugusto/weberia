@@ -216,7 +216,7 @@ export default function MainApp() {
   const showAIPreview = showForm && creationMode === "ai" && aiGeneratedContent;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
         <h1 className="text-2xl font-bold text-center text-gray-900 mb-6">
           Adicionar Novo Post no WordPress
@@ -274,7 +274,7 @@ export default function MainApp() {
             {errorDetails && (
               <div className="mt-2 p-3 border border-red-200 rounded bg-gray-50">
                 <p className="font-medium mb-1">Detalhes do erro:</p>
-                <pre className="text-xs overflow-auto max-h-40">{errorDetails}</pre>
+                <pre className="text-xs text-gray-800 overflow-auto max-h-40">{errorDetails}</pre>
               </div>
             )}
           </div>
@@ -289,7 +289,7 @@ export default function MainApp() {
                 className="bg-white border border-gray-300 rounded-lg p-4 text-center hover:bg-gray-50 transition-colors"
               >
                 <div className="text-xl mb-2">✍️</div>
-                <div className="font-medium">Manualmente</div>
+                <div className="font-medium text-gray-800">Manualmente</div>
                 <div className="text-sm text-gray-500">Escrever o conteúdo</div>
               </button>
               
@@ -298,7 +298,7 @@ export default function MainApp() {
                 className="bg-white border border-gray-300 rounded-lg p-4 text-center hover:bg-gray-50 transition-colors"
               >
                 <div className="text-xl mb-2">🤖</div>
-                <div className="font-medium">Com IA</div>
+                <div className="font-medium text-gray-800">Com IA</div>
                 <div className="text-sm text-gray-500">Gerar com inteligência artificial</div>
               </button>
             </div>
@@ -316,7 +316,7 @@ export default function MainApp() {
                 id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                 placeholder="Digite o título do post"
                 required
               />
@@ -331,7 +331,7 @@ export default function MainApp() {
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 rows={6}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                 placeholder="Digite o conteúdo do post"
                 required
               ></textarea>
@@ -345,7 +345,7 @@ export default function MainApp() {
                 id="category"
                 value={selectedCategory || ""}
                 onChange={(e) => setSelectedCategory(e.target.value ? parseInt(e.target.value) : null)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900"
               >
                 <option value="">Selecione uma categoria (opcional)</option>
                 {categories.map((category) => (
@@ -385,7 +385,7 @@ export default function MainApp() {
                 id="theme"
                 value={theme}
                 onChange={(e) => setTheme(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                 placeholder="Ex: Benefícios da meditação, Receitas veganas, etc."
                 required
               />
@@ -399,7 +399,7 @@ export default function MainApp() {
                 id="category"
                 value={selectedCategory || ""}
                 onChange={(e) => setSelectedCategory(e.target.value ? parseInt(e.target.value) : null)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900"
               >
                 <option value="">Selecione uma categoria (opcional)</option>
                 {categories.map((category) => (
@@ -433,8 +433,8 @@ export default function MainApp() {
             <div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">Conteúdo Gerado pela IA</h3>
               <div className="border border-gray-200 rounded-md p-4 bg-gray-50">
-                <h4 className="font-bold text-lg mb-2">{aiGeneratedContent.title}</h4>
-                <div className="prose prose-sm max-w-none">
+                <h4 className="font-bold text-lg mb-2 text-gray-900">{aiGeneratedContent.title}</h4>
+                <div className="prose prose-sm max-w-none text-gray-800">
                   {aiGeneratedContent.content.split('\n\n').map((paragraph, index) => (
                     <p key={index} className="mb-2">{paragraph}</p>
                   ))}
