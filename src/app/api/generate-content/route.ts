@@ -94,7 +94,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<APIRespon
       
       // Faz a chamada para a API da OpenAI
       const completion = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: "gpt-4o-mini",
         messages: [
           { role: "system", content: "Você é um redator profissional especializado em criar conteúdo para blogs." },
           { role: "user", content: prompt }
