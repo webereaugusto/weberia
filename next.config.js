@@ -17,7 +17,12 @@ const nextConfig = {
 
   // Configurações do servidor
   experimental: {
-    serverActions: true,
+    // Remover serverActions pois já está disponível por padrão
+  },
+
+  webpack: (config) => {
+    config.externals = [...(config.externals || []), "canvas", "jsdom"];
+    return config;
   },
 }
 
